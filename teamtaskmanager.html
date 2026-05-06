@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Team Task Manager</title>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: #f4f6f8;
+    }
+    header {
+      background: #2c3e50;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+    .container {
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input, select, button {
+      padding: 8px;
+      margin: 5px;
+      width: 200px;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    .task {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+    }
+    .dashboard {
+      display: flex;
+      gap: 20px;
+    }
+    .box {
+      background: #ecf0f1;
+      padding: 15px;
+      border-radius: 6px;
+      width: 150px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h2>Team Task Manager</h2>
+</header>
+
+<div class="container">
+
+  <!-- Login -->
+  <div class="card">
+    <h3>Login</h3>
+    <input type="text" id="username" placeholder="Username">
+    <select id="role">
+      <option value="admin">Admin</option>
+      <option value="member">Member</option>
+    </select>
+    <button onclick="login()">Login</button>
+  </div>
+
+  <!-- Project -->
+  <div class="card">
+    <h3>Create Project</h3>
+    <input type="text" id="projectName" placeholder="Project Name">
+    <button onclick="addProject()">Add Project</button>
+    <ul id="projectList"></ul>
+  </div>
+
+  <!-- Task -->
+  <div class="card">
+    <h3>Create Task</h3>
+    <input type="text" id="taskTitle" placeholder="Task Title">
+    <input type="date" id="deadline">
+    <select id="status">
+      <option>Pending</option>
+      <option>In Progress</option>
+      <option>Completed</option>
+    </select>
+    <button onclick="addTask()">Add Task</button>
+
+    <div id="taskList"></div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="card">
+    <h3>Dashboard</h3>
+    <div class="dashboard">
+      <div class="box">
+        <h4 id="total">0</h4>
+        <p>Total</p>
+      </div>
+      <div class="box">
+        <h4 id="completed">0</h4>
+        <p>Completed</p>
+      </div>
+      <div class="box">
+        <h4 id="overdue">0</h4>
+        <p>Overdue</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let tasks = [];
+  let projects = [];
+
+  function login() {
+    let user = document.getElementById("username").value;
+    let role = document.getElementById("role").value;
+    alert("Logged in as " + role.toUpperCase() + ": " + user);
+  }
+
+  function addProject() {
+    let name = document.getElementById("projectName").value;
+    if (!name) return alert("Enter project name");
+
+    projects.push(name);
+    let li = document.createElement("li");
+    li.innerText = name;
+    document.getElementById("projectList").appendChild(li);
+  }
+
+  function addTask() {
+    let title = document.getElementById("taskTitle").value;
+    let deadline = document.getElementById("deadline").value;
+    let status = document.getElementById("status").value;
+
+    if (!title || !deadline) return alert("Fill all fields");
+
+    let task = { title, deadline, status };
+    tasks.push(task);
+
+    displayTasks();
+    updateDashboard();
+  }
+
+  function displayTasks() {
+    let list = document.getElementById("taskList");
+    list.innerHTML = "";
+
+    tasks.forEach((t, index) => {
+      let div = document.createElement("div");
+      div.className = "task";
+      div.innerHTML = `
+        <b>${t.title}</b> - ${t.status} (Due: ${t.deadline})
+        <button onclick="markComplete(${index})">Complete</button>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function markComplete(i) {
+    tasks[i].status = "Completed";
+    displayTasks();
+    updateDashboard();
+  }
+
+  function updateDashboard() {
+    let total = tasks.length;
+    let completed = tasks.filter(t => t.status === "Completed").length;
+
+    let today = new Date().toISOString().split("T")[0];
+    let overdue = tasks.filter(t => t.deadline < today && t.status !== "Completed").length;
+
+    document.getElementById("total").innerText = total;
+    document.getElementById("completed").innerText = completed;
+    document.getElementById("overdue").innerText = overdue;
+  }
+</script>
+
+</body>
+</html>
